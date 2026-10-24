@@ -8,7 +8,7 @@
 - [ ] Benchmark: raw engine output vs Raijin output on the same target (lines, bytes, tokens)
 
 ## v0.2: recon
-- [ ] `raijin-subs` (subfinder + dnsx)
+- [x] `raijin-subs` (subfinder + dnsx): [protonnegativo/raijin-subs](https://github.com/protonnegativo/raijin-subs) (private)
 - [ ] `raijin-ports` (naabu)
 - [ ] `raijin-crawl` (katana)
 - [ ] `raijin-diff` + `--state` on every tool
