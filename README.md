@@ -6,7 +6,7 @@
 
 Raijin is an arsenal of security tools built to be driven by AI agents. Each tool runs a proven engine underneath (nuclei, httpx, katana, ffuf, ...). Instead of dumping thousands of raw lines, it returns a **small, deduplicated, ranked JSON** that an LLM can read without drowning its context.
 
-> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 37× to 168× fewer tokens on the same matches); raijin-probe, raijin-subs and raijin-ports are private for now. See [ROADMAP.md](ROADMAP.md).
+> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 37× to 168× fewer tokens on the same matches); raijin-probe, raijin-subs, raijin-ports and raijin-crawl are private for now. See [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -54,7 +54,7 @@ Every tool is named `raijin-<verb>`: the same prefix, the same schema and the sa
 | **[raijin-probe](https://github.com/protonnegativo/raijin-probe)** | httpx | Status, title, tech and size per host; groups identical responses, flags outliers |
 | **[raijin-subs](https://github.com/protonnegativo/raijin-subs)** | subfinder + dnsx | Live subdomains only, grouped by IP / CNAME / provider; flags dangling CNAMEs |
 | **[raijin-ports](https://github.com/protonnegativo/raijin-ports)** | naabu (+ nmap) | Open ports grouped by service; highlights unusual ports per host |
-| **raijin-crawl** | katana | Unique endpoints and parameters, collapsed by route pattern (`/user/{id}`) |
+| **[raijin-crawl](https://github.com/protonnegativo/raijin-crawl)** | katana | Unique endpoints and parameters, collapsed by route pattern (`/user/{id}`) |
 | **raijin-js** | katana + JS parsing | Endpoints, API routes and secrets found in JS bundles, deduped across files |
 | **raijin-params** | arjun / x8 | Hidden parameters that actually change the response |
 | **raijin-scan** | nuclei | Unique findings with the matched evidence; collapses the same template across hosts |
