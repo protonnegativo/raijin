@@ -1,5 +1,9 @@
 # Banner options
 
+**Chosen: 3D**, the storm thunderbird (3B shape) in the 3A palette and frame. Implemented in [raijin-scan](https://github.com/protonnegativo/raijin-scan) as `--banner`.
+
+![chosen](3d-thunderbird-storm-violet.png)
+
 The banner is **off by default**. It only prints with an explicit flag (`--banner`), so normal output stays a small JSON. The version number is filled in at runtime from the tool's version constant, so it never needs a manual update.
 
 All art here is original: the dragon, the thunderbird and the bolt are drawn procedurally (`dragon.py`), then converted to braille (2×4 dots per character). `gen.py` renders these previews; the `.txt` files are what the terminal shows.

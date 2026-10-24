@@ -239,3 +239,8 @@ lines = colored(VC, GOLD, RED)
 lines += [[("", BG)]] + [[(" " * 2, BG)] + seg for seg in colored(NAME, GOLD, RED, vertical=False)]
 lines += [[("  " + ACRONYM + " " + MOTTO, (255, 220, 160))]]
 save("3c-thunderbird-totem", lines)
+
+# 3D: storm thunderbird (3B shape) in the 3A palette and frame -- the chosen one
+left = framed(VB, CYAN, VIOLET, (120, 200, 255), "TGT-LOCK ▸ 0x" + b"RAIJIN".hex())
+right = colored(NAME, CYAN, VIOLET, vertical=False) + [[("", BG)]] + hud(hud_rows(), "TARGET", (120, 200, 255), (190, 225, 255), CYAN)
+save("3d-thunderbird-storm-violet", side_by_side(left, right, top=2) + [[(ACRONYM, (200, 225, 255))], [(MOTTO, VIOLET)]])
