@@ -6,7 +6,7 @@
 
 Raijin is an arsenal of security tools built to be driven by AI agents. Each tool runs a proven engine underneath (nuclei, httpx, katana, ffuf, ...). Instead of dumping thousands of raw lines, it returns a **small, deduplicated, ranked JSON** that an LLM can read without drowning its context.
 
-> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 17.7× smaller output on the same matches). See [ROADMAP.md](ROADMAP.md).
+> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 37× to 168× fewer tokens on the same matches); raijin-probe (httpx) is private for now. See [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -51,7 +51,7 @@ Every tool is named `raijin-<verb>`: the same prefix, the same schema and the sa
 
 | Tool | Engine underneath | What Raijin reduces |
 |---|---|---|
-| **raijin-probe** | httpx | Status, title, tech and size per host; groups identical responses, flags outliers |
+| **[raijin-probe](https://github.com/protonnegativo/raijin-probe)** | httpx | Status, title, tech and size per host; groups identical responses, flags outliers |
 | **raijin-subs** | subfinder + dnsx | Live subdomains only, grouped by IP / CNAME / provider; flags dangling CNAMEs |
 | **raijin-ports** | naabu (+ nmap) | Open ports grouped by service; highlights unusual ports per host |
 | **raijin-crawl** | katana | Unique endpoints and parameters, collapsed by route pattern (`/user/{id}`) |

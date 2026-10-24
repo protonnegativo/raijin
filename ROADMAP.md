@@ -2,7 +2,7 @@
 
 ## v0.1: the base
 - [ ] `raijin-core`: Raijin Schema, reducer helpers (dedup, group, rank, trim, budget), scope check, engine discovery on `PATH`
-- [ ] `raijin-probe` (httpx)
+- [x] `raijin-probe` (httpx): [protonnegativo/raijin-probe](https://github.com/protonnegativo/raijin-probe) (private)
 - [x] `raijin-scan` (nuclei): [protonnegativo/raijin-scan](https://github.com/protonnegativo/raijin-scan)
 - [ ] `raijin-mcp`: MCP server exposing the tools above
 - [ ] Benchmark: raw engine output vs Raijin output on the same target (lines, bytes, tokens)
