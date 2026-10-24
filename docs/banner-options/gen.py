@@ -209,46 +209,33 @@ def save(name, lines):
 # ---------- sources ----------
 import sys
 sys.path.insert(0, str(HERE))
-from dragon import dragon, thunderbird
+from dragon import dragon, thunderbird, thunderbird_v, thunderbird_storm, thunderbird_totem
 
 NAME = block_text("RAIJIN", 15)
 CYAN, VIOLET, BLUE, WHITE = (80, 220, 255), (170, 90, 255), (60, 140, 255), (235, 240, 255)
 GOLD, AMBER, ORANGE, YELLOW = (255, 205, 80), (255, 170, 0), (255, 110, 0), (255, 240, 120)
-for f in OUT.glob("*"):
-    f.unlink()
+
 
 def mask_art(im, cols):
     return to_braille(dither(im.convert("RGB"), cols, contrast=1.0, thresh=128))
 
-DRAGON = mask_art(dragon(), 58)
-BIRD = mask_art(thunderbird(), 36)
+RED = (230, 50, 40)
+VA = mask_art(thunderbird_v(), 40)
+VB = mask_art(thunderbird_storm(), 44)
+VC = mask_art(thunderbird_totem(), 38)
 
-# V1: lightning dragon in target-lock HUD, cyan -> violet
-left = framed(DRAGON, CYAN, VIOLET, (120, 200, 255), "TGT-LOCK ▸ 0x" + b"RAIJIN".hex())
+# 3A: wings raised, target-lock HUD, cyan -> violet
+left = framed(VA, CYAN, VIOLET, (120, 200, 255), "TGT-LOCK ▸ 0x" + b"RAIJIN".hex())
 right = colored(NAME, CYAN, VIOLET, vertical=False) + [[("", BG)]] + hud(hud_rows(), "TARGET", (120, 200, 255), (190, 225, 255), CYAN)
-save("1-dragon-hud", side_by_side(left, right, top=1) + [[(ACRONYM, (200, 225, 255))], [(MOTTO, VIOLET)]])
+save("3a-thunderbird-hud", side_by_side(left, right, top=2) + [[(ACRONYM, (200, 225, 255))], [(MOTTO, VIOLET)]])
 
-# V2: lightning dragon, electric yellow/white (Kirin style), name underneath, no HUD
-lines = colored(DRAGON, WHITE, YELLOW)
-lines += [[("", BG)]] + [[("  ", BG)] + seg for seg in colored(NAME, YELLOW, AMBER, vertical=False)]
-lines += [[("  " + ACRONYM + " " + MOTTO, (255, 230, 150))]]
-save("2-dragon-kirin", lines)
-
-# V3: thunderbird + name + HUD, amber
-left = colored(BIRD, YELLOW, ORANGE)
+# 3B: storm (bolts from the wingtips), amber -> orange, HUD
+left = colored(VB, YELLOW, ORANGE)
 right = colored(NAME, YELLOW, ORANGE, vertical=False) + [[("", BG)]] + hud(hud_rows(), "TARGET", AMBER, (255, 215, 150), ORANGE)
-save("3-thunderbird", side_by_side(left, right, top=2) + [[(ACRONYM, (255, 215, 150))], [(MOTTO, ORANGE)]])
+save("3b-thunderbird-storm", side_by_side(left, right, top=2) + [[(ACRONYM, (255, 215, 150))], [(MOTTO, ORANGE)]])
 
-# V4: big lightning bolt, electric blue, compact
-im = Image.new("L", (120, 160), 0)
-ImageDraw.Draw(im).polygon([(70, 0), (20, 88), (58, 88), (36, 160), (104, 58), (64, 58), (92, 0)], fill=255)
-left = colored(mask_art(im, 20), WHITE, BLUE)
-right = colored(NAME, WHITE, BLUE, vertical=False) + [[("", BG)], [(ACRONYM, (190, 210, 255))], [(MOTTO, BLUE)], [("", BG)], [("raijin-scan v0.1.0 · Raijin Schema · JSON", (120, 140, 190))]]
-save("4-bolt", side_by_side(left, right, top=3))
-
-# V5: minimal, least output
-small = block_text("RAIJIN", 13)
-rows = colored(small, CYAN, VIOLET, vertical=False)
-lines = [[("⚡ ", YELLOW)] + rows[0]] + [[("  ", BG)] + r for r in rows[1:]]
-lines += [[("  " + MOTTO + " · raijin-scan v0.1.0", (150, 170, 210))]]
-save("5-minimal", lines)
+# 3C: totem, gold -> red, name underneath
+lines = colored(VC, GOLD, RED)
+lines += [[("", BG)]] + [[(" " * 2, BG)] + seg for seg in colored(NAME, GOLD, RED, vertical=False)]
+lines += [[("  " + ACRONYM + " " + MOTTO, (255, 220, 160))]]
+save("3c-thunderbird-totem", lines)

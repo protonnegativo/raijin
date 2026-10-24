@@ -125,3 +125,89 @@ if __name__ == "__main__":
     here = pathlib.Path(__file__).parent
     dragon().save(here / "dragon_mask.png")
     thunderbird().save(here / "bird_mask.png")
+
+
+def thunderbird_v(w=440, h=340, seed=11):
+    """Wings raised in a V: broad wings with a lightning-tooth trailing edge, bolts in the talons."""
+    rnd = random.Random(seed)
+    im = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(im)
+    cx = w // 2
+    for side in (-1, 1):
+        tip = (cx + side * 205, 10)
+        pts = [(cx + side * 8, 120), (cx + side * 70, 70), tip]
+        # trailing edge: big lightning teeth from the tip back to the body
+        n = 7
+        for k in range(1, n + 1):
+            t = k / n
+            x = tip[0] + (cx + side * 20 - tip[0]) * t
+            y = tip[1] + (175 - tip[1]) * t
+            pts += [(x + side * 6, y + 34), (x - side * 14, y + 6)]
+        pts += [(cx + side * 20, 190), (cx + side * 4, 180)]
+        d.polygon(pts, fill=255)
+        # one dark feather line per wing so it reads as a wing, not a blob
+        d.line([(cx + side * 40, 120), (cx + side * 160, 40)], fill=0, width=4)
+    d.ellipse((cx - 28, 110, cx + 28, 225), fill=255)  # body
+    d.ellipse((cx - 20, 66, cx + 20, 112), fill=255)  # head
+    d.polygon([(cx - 9, 102), (cx, 132), (cx + 9, 102)], fill=255)  # beak
+    d.ellipse((cx - 11, 80, cx - 3, 88), fill=0)
+    d.ellipse((cx + 3, 80, cx + 11, 88), fill=0)
+    for s_ in (-1, 1):
+        d.polygon([(cx + s_ * 12, 72), (cx + s_ * 34, 26), (cx + s_ * 4, 66)], fill=255)
+    for dx in (-32, 0, 32):
+        d.polygon([(cx - 12, 215), (cx + dx - 16, 285), (cx + dx, 270), (cx + dx + 16, 285), (cx + 12, 215)], fill=255)
+    for s_ in (-1, 1):
+        bolt(d, cx + s_ * 18, 222, cx + s_ * 130, 335, 6, rnd, jag=12)
+    return im.crop(im.getbbox())
+
+
+def thunderbird_storm(w=460, h=340, seed=3):
+    """The original thunderbird with bolts striking out of the wingtips."""
+    rnd = random.Random(seed)
+    base = thunderbird(w=360, h=300, seed=seed)
+    im = Image.new("L", (w, h), 0)
+    im.paste(base, ((w - 360) // 2, 20))
+    d = ImageDraw.Draw(im)
+    cx = w // 2
+    for side in (-1, 1):
+        tipx = cx + side * 172
+        bolt(d, tipx, 60, tipx + side * 40, 0, 4, rnd, jag=8)
+        bolt(d, tipx, 70, tipx + side * 55, 170, 4, rnd, jag=10)
+        bolt(d, cx + side * 120, 150, cx + side * 150, 260, 3, rnd, jag=8)
+    return im.crop(im.getbbox())
+
+
+def thunderbird_totem(w=420, h=320):
+    """Geometric Northwest-coast style: symmetric blocks, eyes on the wings."""
+    im = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(im)
+    cx = w // 2
+    for s in (-1, 1):
+        # wing as stacked blocks stepping outwards
+        for k in range(5):
+            x0 = cx + s * (30 + k * 34)
+            y0 = 100 + k * 10
+            d.rectangle(sorted([x0, x0 + s * 32])[:1] + [y0] + sorted([x0, x0 + s * 32])[1:] + [y0 + 90 - k * 12], fill=255)
+            d.rectangle(sorted([x0 + s * 6, x0 + s * 26])[:1] + [y0 + 8] + sorted([x0 + s * 6, x0 + s * 26])[1:] + [y0 + 20], fill=0)
+        # wing eye (ovoid)
+        ex = cx + s * 95
+        d.ellipse((ex - 26, 112, ex + 26, 150), fill=0)
+        d.ellipse((ex - 18, 118, ex + 18, 144), fill=255)
+        d.ellipse((ex - 8, 124, ex + 8, 138), fill=0)
+        # feather tips at the bottom of the wing
+        for k in range(5):
+            x = cx + s * (40 + k * 34)
+            d.polygon([(x, 190 - k * 2), (x + s * 16, 230 - k * 6), (x + s * 30, 190 - k * 2)], fill=255)
+    # head with curved beak and crest
+    d.rectangle((cx - 28, 40, cx + 28, 110), fill=255)
+    d.polygon([(cx - 28, 40), (cx, 0), (cx + 28, 40)], fill=255)
+    d.ellipse((cx - 20, 55, cx - 6, 69), fill=0)
+    d.ellipse((cx + 6, 55, cx + 20, 69), fill=0)
+    d.polygon([(cx - 10, 80), (cx + 10, 80), (cx + 4, 108), (cx - 4, 108)], fill=0)
+    # body and tail
+    d.rectangle((cx - 26, 110, cx + 26, 240), fill=255)
+    d.rectangle((cx - 14, 130, cx + 14, 150), fill=0)
+    d.rectangle((cx - 14, 170, cx + 14, 190), fill=0)
+    for dx in (-26, 0, 26):
+        d.polygon([(cx + dx - 13, 240), (cx + dx, 300), (cx + dx + 13, 240)], fill=255)
+    return im.crop(im.getbbox())

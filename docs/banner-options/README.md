@@ -13,6 +13,17 @@ All art here is original: the dragon, the thunderbird and the bolt are drawn pro
 ## 3. Thunderbird · HUD (amber → orange)
 ![3](3-thunderbird.png)
 
+### Thunderbird variations
+
+#### 3A. Wings raised · target-lock HUD (cyan → violet)
+![3a](3a-thunderbird-hud.png)
+
+#### 3B. Storm: bolts from the wingtips · HUD (amber → orange)
+![3b](3b-thunderbird-storm.png)
+
+#### 3C. Totem: Northwest-coast geometric style, eyes on the wings (gold → red)
+![3c](3c-thunderbird-totem.png)
+
 ## 4. Bolt · compact (white → blue)
 ![4](4-bolt.png)
 
