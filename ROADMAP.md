@@ -9,7 +9,7 @@
 
 ## v0.2: recon
 - [x] `raijin-subs` (subfinder + dnsx): [protonnegativo/raijin-subs](https://github.com/protonnegativo/raijin-subs) (private)
-- [ ] `raijin-ports` (naabu)
+- [x] `raijin-ports` (naabu + nmap): [protonnegativo/raijin-ports](https://github.com/protonnegativo/raijin-ports) (private)
 - [ ] `raijin-crawl` (katana)
 - [ ] `raijin-diff` + `--state` on every tool
 
