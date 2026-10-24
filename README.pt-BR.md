@@ -33,7 +33,7 @@ O motor faz o scan. O Raijin faz o que o agente faz mal: **comprimir o resultado
 
 1. **Orçamento de tokens.** Cada ferramenta aceita `max_items` e `max_bytes`, devolve os N melhores e resume o que ficou de fora.
 2. **O mesmo schema em todas as ferramentas** ([docs/schema.md](docs/schema.md)).
-3. **Agrupar, não repetir.** 500 hosts com o mesmo achado viram uma entrada só, com contagem e exemplos.
+3. **Agrupar sem repetir e sem perder.** 500 hosts com o mesmo achado viram uma entrada só, que lista cada local uma vez, em vez de 500 cópias do mesmo template, título e metadados. Nada que foi achado some calado.
 4. **Evidência mínima.** Cada achado traz só o trecho que o prova.
 5. **Confiança, além de severidade:** `verified`, `matched` ou `heuristic`.
 6. **Diff por padrão.** Com `--state`, uma nova execução mostra só o que mudou.

@@ -15,6 +15,7 @@ The JSON is compact (one line) by default; `--pretty` indents it. **Anything the
   "omitted": {},
   "errors": [],
   "next": [],
+  "raw": "/tmp/raijin-scan-123.jsonl",
   "budget": {"max_items": 20, "max_bytes": 8000, "truncated": true}
 }
 ```
@@ -28,10 +29,11 @@ The JSON is compact (one line) by default; `--pretty` indents it. **Anything the
 | `target` | string | What was scanned, in one line |
 | `summary` | string | One sentence: counts and the most important fact |
 | `findings` | array | Ranked findings, at most `max_items` (see below) |
-| `groups` | array | Things that repeat, collapsed: `{id, count, examples[≤3], variants}`. `count` is the total; `examples` may be cut by the budget; `variants` lists the sub-matches (for example the missing headers) |
+| `groups` | array | Info-level output collapsed per rule (see below) |
 | `omitted` | object | What was dropped and why: `{"info": 1712, "duplicates": 119, "out_of_scope": 4}`. Left out when empty |
 | `errors` | array | `{hosts, kind, hint}`; `hint` says what to try next. Left out when empty |
 | `next` | array | Suggested follow-up commands, ready to run. Left out when empty |
+| `raw` | string | File with the engine's full output, for details the result leaves out |
 | `budget` | object | The limits applied. Written only when something was cut (`truncated: true`) |
 
 ## Finding
@@ -42,27 +44,41 @@ The JSON is compact (one line) by default; `--pretty` indents it. **Anything the
   "title": "Short human title",
   "severity": "critical|high|medium|low|info",
   "confidence": "verified|heuristic",
-  "hosts": ["up to 5 hosts"],
-  "hosts_count": 42,
-  "evidence": "the minimal proof: one header, one line, one reflected value",
+  "cve": ["CVE-2021-44228"],
+  "cvss": 9.8,
+  "locations": ["https://a.example.com/.env [DB_PASSWORD=x]", "https://b.example.com/.env"],
+  "count": 42,
   "engine_ref": "engine:template-or-rule",
   "new": true
 }
 ```
 
+- `locations` lists **every** place the finding matched: the URL (or host:port), plus the values extracted there in brackets. Each location is cut at 300 characters. Two different URLs on one host are two locations.
+- `count` is written only when the budget cut `locations`; otherwise it is `len(locations)`.
 - `confidence` is left out when it is `matched`.
-- `hosts_count` is written only when it is larger than the number of `hosts` listed.
+- `cve` and `cvss` appear when the engine rule has them. A CVE that is already the `id` is not repeated.
 - `engine_ref` is written only when the engine rule is not the `id` up to the first `:`.
 - `new` appears only with `--state`, and only when it is true.
+
+`confidence` values:
 
 - `verified`: the tool confirmed it (secret validated, reflection executed, takeover claimable).
 - `matched` (the default, left out): the engine matched a signature; not confirmed.
 - `heuristic`: inferred (outlier, unusual port); worth a look.
 
+## Group
+
+```json
+{"id": "http-missing-security-headers", "variants": ["x-frame-options", "content-security-policy"], "locations": ["https://a", "https://b"], "count": 2}
+```
+
+Info-level output, collapsed per rule: **every variant listed matched every location listed.** Variants that matched different locations go in separate groups with the same `id`, so no variant/location pair is lost. `count` is written only when the budget cut `locations`.
+
 ## Rules every tool follows
 
-1. Sort by `severity`, then `confidence`, then number of hosts.
-2. Never put a full response body in `evidence`. At most 300 characters.
-3. The same `tool` and `id` in two runs means the same finding. `raijin-diff` relies on it.
-4. If `max_items` or `max_bytes` cut something, set `budget.truncated` and count it in `omitted`.
-5. Exit code `0` if the run worked (even with findings), `1` on usage error, `2` if the engine is missing.
+1. **Lossless for what an agent acts on.** Every finding and every location is in the output. Only exact repeats collapse, and they are counted in `omitted.duplicates`.
+2. Sort by `severity`, then `confidence`, then number of locations.
+3. Never put a full response body in the output. Everything the engine produced is saved to the file in `raw`.
+4. The same `tool` and `id` in two runs means the same finding. `raijin-diff` relies on it.
+5. If `max_items` or `max_bytes` cut something, set `budget.truncated`, count it in `omitted` and point to `raw` in `next`. Cut the least important data first: info locations, info groups, extra locations of low-ranked findings, low-ranked findings.
+6. Exit code `0` if the run worked (even with findings), `1` on usage error, `2` if the engine is missing.

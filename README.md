@@ -37,7 +37,7 @@ The engines do the scanning. Raijin does the part agents are bad at: **compressi
 
 1. **Token budget.** Every tool takes `max_items` (and `max_bytes`). It returns the top N, plus a summary of what was left out: `"+340 identical 404 responses omitted"`.
 2. **Same schema everywhere.** Every tool returns the [Raijin Schema](docs/schema.md): `summary`, `findings`, `groups`, `omitted`, `errors`, `next`. An agent learns it once.
-3. **Group, don't repeat.** 500 hosts with the same tech or the same finding become one entry with a count and a few examples.
+3. **Group, don't repeat, don't drop.** 500 hosts with the same finding become one entry that lists every location once, instead of 500 copies of the same template, title and metadata. Nothing found is dropped silently.
 4. **Minimal evidence.** Each finding carries the exact snippet that proves it (the header, the matched line, the reflected parameter), never the whole response.
 5. **Confidence, not just severity.** Each finding says how sure it is and why (`verified`, `matched`, `heuristic`).
 6. **Diff by default.** With a state file, a rerun reports only what changed since the last run.
