@@ -1,0 +1,20 @@
+# Banner options
+
+The banner is **off by default**. It only prints with an explicit flag (`--banner`), so normal output stays a small JSON. The version number is filled in at runtime from the tool's version constant, so it never needs a manual update.
+
+All art here is original: the dragon, the thunderbird and the bolt are drawn procedurally (`dragon.py`), then converted to braille (2×4 dots per character). `gen.py` renders these previews; the `.txt` files are what the terminal shows.
+
+## 1. Lightning dragon · target-lock HUD (cyan → violet)
+![1](1-dragon-hud.png)
+
+## 2. Lightning dragon · Kirin style (white → yellow), no HUD
+![2](2-dragon-kirin.png)
+
+## 3. Thunderbird · HUD (amber → orange)
+![3](3-thunderbird.png)
+
+## 4. Bolt · compact (white → blue)
+![4](4-bolt.png)
+
+## 5. Minimal (least output)
+![5](5-minimal.png)
