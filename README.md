@@ -6,7 +6,7 @@
 
 Raijin is an arsenal of security tools built to be driven by AI agents. Each tool runs a proven engine underneath (nuclei, httpx, katana, ffuf, ...). Instead of dumping thousands of raw lines, it returns a **small, deduplicated, ranked JSON** that an LLM can read without drowning its context.
 
-> Status: idea / design. Nothing is implemented yet. See [ROADMAP.md](ROADMAP.md).
+> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 17.7× smaller output on the same matches). See [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -98,14 +98,13 @@ $ raijin-scan --scope scope.txt --max-items 5 hosts.txt
 }
 ```
 
-## Install (planned)
+## Install
 
 ```bash
-pipx install raijin-scan        # one tool
-pipx install raijin-mcp         # the MCP server with every tool
+go install github.com/protonnegativo/raijin-scan/cmd/raijin-scan@latest
 ```
 
-Python, packaged per tool as `raijin-<verb>` (the bare name `raijin` is taken on PyPI). The engines are external binaries; Raijin finds them on `PATH` and says which one is missing.
+Go, one repo and one binary per tool (`raijin-<verb>`), all sharing the Raijin Schema and the same flags. Engines are external binaries found on `PATH`; a missing engine is reported with an install hint.
 
 ## Responsible use
 

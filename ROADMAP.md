@@ -3,7 +3,7 @@
 ## v0.1: the base
 - [ ] `raijin-core`: Raijin Schema, reducer helpers (dedup, group, rank, trim, budget), scope check, engine discovery on `PATH`
 - [ ] `raijin-probe` (httpx)
-- [ ] `raijin-scan` (nuclei)
+- [x] `raijin-scan` (nuclei): [protonnegativo/raijin-scan](https://github.com/protonnegativo/raijin-scan)
 - [ ] `raijin-mcp`: MCP server exposing the tools above
 - [ ] Benchmark: raw engine output vs Raijin output on the same target (lines, bytes, tokens)
 
@@ -26,6 +26,6 @@
 - [ ] QuarkScan integration (use Raijin tools as its agents' tools)
 
 ## Open questions
-- One package per tool, or one package `raijin-tools` with every command?
+- ~~One package per tool, or one package with every command?~~ Decided: Go, one repo and binary per tool.
 - Default `max_items`: 20? Configurable per agent context size?
 - How to rank `heuristic` findings without hiding real issues?
