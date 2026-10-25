@@ -131,7 +131,7 @@ Every tool repo also runs two GitHub Actions workflows:
 - `ci`, on every push: vet, format, tests, and the offline benchmark. It fails if any engine result is missing from the output.
 - `engine-drift`, weekly (Monday 06:00 UTC) and on demand: installs the latest engine and runs the live benchmark against the local lab in the runner.
   - If something is missing or the format changed, it opens an issue labeled `engine-drift`.
-  - If everything passes on a newer engine, it opens a PR that bumps `engines.json`. Merging that PR updates the tested versions that `--pinned` installs.
+  - If everything passes on a newer engine, it commits the new version to `engines.json` and tags a release. `raijin-mcp update` then installs that release, and `--pinned` installs the newly tested engine version.
 
 ## Update and uninstall
 
