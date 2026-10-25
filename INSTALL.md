@@ -135,7 +135,16 @@ Every tool repo also runs two GitHub Actions workflows:
 
 ## Update and uninstall
 
-- **Update:** run `./install.sh` again. It installs the latest version of each tool.
+- **Update:** `raijin-mcp update` updates every installed `raijin-<verb>` to its latest release and its engines to their latest version. It never uses sudo: system packages (nmap) are printed, and trufflehog's install script runs only with `--allow-scripts`.
+
+  ```bash
+  raijin-mcp update --check    # what is out of date; installs nothing
+  raijin-mcp update            # update every tool and its engines
+  raijin-mcp update --pinned   # engines at the versions each tool was tested with
+  raijin-mcp update --tools scan,probe
+  ```
+
+  An agent can do the same through the MCP tool `raijin_update` (`{"apply": true}` to install; it only checks by default), then restart raijin-mcp. The server also checks once a day in the background and says so in its instructions when something is out of date.
 - **Uninstall:**
 
   ```bash

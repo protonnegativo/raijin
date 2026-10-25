@@ -107,6 +107,8 @@ git clone https://github.com/protonnegativo/raijin && cd raijin
 ./install.sh --all    # every tool, the missing engines, and raijin-mcp registered in Claude Code
 ```
 
+Later, `raijin-mcp update` updates every installed tool and its engines at once (`--check` to only see what is out of date, `--pinned` for the tested engine versions).
+
 Go, one repo and one binary per tool (`raijin-<verb>`), all sharing the Raijin Schema and the same flags. Engines are external binaries found on `PATH`; a missing engine is reported with an install hint.
 
 ## Responsible use
