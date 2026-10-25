@@ -5,9 +5,11 @@
 #   ./install.sh --engines       also install the engines that are missing (nuclei, httpx, ...)
 #   ./install.sh --mcp           also register raijin-mcp with Claude Code (user scope)
 #   ./install.sh --all           both
+#   ./install.sh --pinned        install the engines at the versions each tool was tested with
+#                                (its engines.json) instead of skipping the ones on PATH
 #   RAIJIN_TOOLS="scan probe" ./install.sh   only these tools (raijin-mcp is always added)
 #
-# Safe to run again: it reinstalls the latest version and skips engines already on PATH.
+# Safe to run again: it reinstalls the latest tools and skips engines already on PATH (unless --pinned).
 # It never uses sudo: system packages (nmap, libpcap) are printed as a hint instead.
 # Ends with a status table; exit 0 when every requested tool installed, 1 otherwise.
 set -uo pipefail
@@ -15,13 +17,14 @@ set -uo pipefail
 ALL_TOOLS="scan probe subs ports crawl js params fuzz tls secrets xss cors takeover diff mcp"
 OWNER=github.com/protonnegativo
 LOG=$(mktemp -d "${TMPDIR:-/tmp}/raijin-install.XXXXXX")
-want_engines=0 want_mcp=0
+want_engines=0 want_mcp=0 want_pinned=0
 for a in "$@"; do
   case "$a" in
     --engines) want_engines=1 ;;
     --mcp) want_mcp=1 ;;
     --all) want_engines=1 want_mcp=1 ;;
-    -h|--help) sed -n 2,12p "$0"; exit 0 ;;
+    --pinned) want_engines=1 want_pinned=1 ;;
+    -h|--help) sed -n 2,14p "$0"; exit 0 ;;
     *) echo "unknown option: $a" >&2; exit 1 ;;
   esac
 done
@@ -79,13 +82,50 @@ declare -A hint=(
   [arjun]="pipx install arjun (or pip install --user arjun)"
 )
 engines=$(for v in $tools; do echo ${engine_for[$v]:-}; done | tr ' ' '\n' | sort -u | grep -v '^$')
+
+# --pinned: each tool ships engines.json with the engine versions its fixtures were made with.
+# Read it from the module Go just downloaded; the first tool that names an engine sets its version.
+declare -A pinned
+if [ $want_pinned = 1 ]; then
+  command -v python3 >/dev/null || fail "--pinned needs python3 to read engines.json"
+  for v in $tools; do
+    dir=$(go mod download -json "$OWNER/raijin-$v@latest" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("Dir",""))')
+    [ -f "$dir/engines.json" ] || continue
+    while IFS=' ' read -r e ver kind src; do
+      if [ -n "${pinned[$e]:-}" ]; then
+        read -r first _ <<<"${pinned[$e]}"
+        [ "$first" = "$ver" ] || echo "note: raijin-$v was tested with $e $ver, an earlier tool with $first; installing $first" >&2
+        continue
+      fi
+      pinned[$e]="$ver $kind $src"
+      case $kind in
+        go) install_cmd[$e]="go install $src@v$ver" ;;
+        pip) install_cmd[$e]="pipx install --force $src==$ver" ;;
+      esac
+    done < <(python3 -c 'import json,sys
+for e,v in json.load(open(sys.argv[1])).items():
+    kind=next((k for k in ("go","pip","system") if k in v),"")
+    print(e, v.get("version",""), kind, v.get(kind,""))' "$dir/engines.json")
+  done
+fi
+
 declare -A estatus
 for e in $engines; do
-  if command -v "$e" >/dev/null; then estatus[$e]=ok; continue; fi
+  read -r pver pkind psrc <<<"${pinned[$e]:-}"
+  [ "$pkind" = system ] && pver=""   # system packages are never installed by this script
+  if [ -z "$pver" ] && command -v "$e" >/dev/null; then estatus[$e]=ok; continue; fi
   if [ $want_engines = 1 ] && [ -n "${install_cmd[$e]:-}" ]; then
     cmd=${install_cmd[$e]}
-    if [ "$e" = arjun ] && ! command -v pipx >/dev/null; then cmd="python3 -m pip install --user arjun"; fi
-    if $cmd >$LOG/raijin-install-$e.log 2>&1 && command -v "$e" >/dev/null; then estatus[$e]="ok (installed)"; continue; fi
+    if [ "$e" = arjun ] && ! command -v pipx >/dev/null; then
+      pkg=arjun; [ -n "$pver" ] && pkg="arjun==$pver"
+      cmd="python3 -m pip install --user $pkg"
+    fi
+    if $cmd >$LOG/raijin-install-$e.log 2>&1 && command -v "$e" >/dev/null; then
+      estatus[$e]="ok (installed${pver:+ v$pver})"
+      at=$(command -v "$e")
+      if [ "$pkind" = go ] && [ "$at" != "$GOBIN/$e" ]; then estatus[$e]+="; but $at comes first on PATH"; fi
+      continue
+    fi
   fi
   estatus[$e]="missing: ${hint[$e]:-${install_cmd[$e]:-}}"
 done

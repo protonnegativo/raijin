@@ -70,6 +70,8 @@ Each tool runs a proven engine underneath and finds it on `PATH`. `./install.sh 
 | dnsx | raijin-takeover | as above |
 | (none) | raijin-cors, raijin-diff, raijin-mcp | native |
 
+`./install.sh --pinned` installs each engine at the version its tool was tested with, read from the tool's `engines.json`, instead of keeping whatever is on `PATH`. Use it when results must match the benchmarks exactly, for example during an engagement. Without it, the latest engine is used, which is what the weekly drift job (below) checks.
+
 You only need the engines of the tools you use. A tool whose engine is missing still runs: it exits 2 and its JSON has an `errors` entry of kind `missing_engine` with the install command.
 
 ## Step 5: the MCP server
@@ -114,6 +116,22 @@ raijin-scan --scope scope.txt
 Through MCP, pass only the scope: `{"scope": ["example.com", "*.example.com"]}`.
 
 The output is one compact JSON line (the Raijin Schema, see [docs/schema.md](docs/schema.md)). Read `findings` first. `next` holds the exact follow-up commands, for example enumerating a wildcard with `raijin-subs` before scanning it. `raw` is the engine's full output on disk, for details. To scan only after explicit authorization, see [Responsible use](README.md#responsible-use).
+
+## Engine updates
+
+Each tool records the engine versions it was tested with in `engines.json`, and checks the installed engine at run time:
+
+- `errors` kind `engine_version`: the installed engine has another major version, or is older than the tested one. The hint has the command that installs the tested version.
+- `errors` kind `engine_format`: the engine's output lacks fields the tool needs, so its format probably changed. Those results are counted in `omitted.unparsed`, and the full output is in `raw`.
+
+An agent that sees either error should trust `raw` over the summary for that run, and tell the user.
+
+Every tool repo also runs two GitHub Actions workflows:
+
+- `ci`, on every push: vet, format, tests, and the offline benchmark. It fails if any engine result is missing from the output.
+- `engine-drift`, weekly (Monday 06:00 UTC) and on demand: installs the latest engine and runs the live benchmark against the local lab in the runner.
+  - If something is missing or the format changed, it opens an issue labeled `engine-drift`.
+  - If everything passes on a newer engine, it opens a PR that bumps `engines.json`. Merging that PR updates the tested versions that `--pinned` installs.
 
 ## Update and uninstall
 
