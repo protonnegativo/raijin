@@ -65,6 +65,15 @@ O padrão é `raijin-<verbo>`. Todas as ferramentas usam o mesmo schema e as mes
 
 **Fūjin**, o deus do vento que anda sempre com o Raijin, fica reservado para a parte passiva e de OSINT, que não manda nenhum pacote ao alvo.
 
+## Instalação
+
+> **Agentes de IA:** leiam o [INSTALL.md](INSTALL.md) e sigam os passos. Ele instala as ferramentas, os engines e o servidor MCP, com uma verificação depois de cada passo.
+
+```bash
+git clone https://github.com/protonnegativo/raijin && cd raijin
+./install.sh --all    # todas as ferramentas, os engines que faltam e o raijin-mcp registrado no Claude Code
+```
+
 ## Uso responsável
 
 O Raijin é só para teste autorizado: seus próprios ativos, pentests com escopo por escrito e programas de bug bounty dentro das regras de cada um.

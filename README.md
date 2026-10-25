@@ -100,8 +100,11 @@ $ raijin-scan --scope scope.txt --max-items 5 hosts.txt
 
 ## Install
 
+> **AI agents:** read [INSTALL.md](INSTALL.md) and follow it. It installs the tools, their engines and the MCP server, with a check after each step.
+
 ```bash
-go install github.com/protonnegativo/raijin-scan/cmd/raijin-scan@latest
+git clone https://github.com/protonnegativo/raijin && cd raijin
+./install.sh --all    # every tool, the missing engines, and raijin-mcp registered in Claude Code
 ```
 
 Go, one repo and one binary per tool (`raijin-<verb>`), all sharing the Raijin Schema and the same flags. Engines are external binaries found on `PATH`; a missing engine is reported with an install hint.
