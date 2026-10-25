@@ -6,7 +6,7 @@
 
 Raijin is an arsenal of security tools built to be driven by AI agents. Each tool runs a proven engine underneath (nuclei, httpx, katana, ffuf, ...). Instead of dumping thousands of raw lines, it returns a **small, deduplicated, ranked JSON** that an LLM can read without drowning its context.
 
-> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 37× to 168× fewer tokens on the same matches); raijin-probe, raijin-subs, raijin-ports and raijin-crawl are private for now. See [ROADMAP.md](ROADMAP.md).
+> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 37× to 168× fewer tokens on the same matches); the other 14 tools are built and private for now. See [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -55,17 +55,17 @@ Every tool is named `raijin-<verb>`: the same prefix, the same schema and the sa
 | **[raijin-subs](https://github.com/protonnegativo/raijin-subs)** | subfinder + dnsx | Live subdomains only, grouped by IP / CNAME / provider; flags dangling CNAMEs |
 | **[raijin-ports](https://github.com/protonnegativo/raijin-ports)** | naabu (+ nmap) | Open ports grouped by service; highlights unusual ports per host |
 | **[raijin-crawl](https://github.com/protonnegativo/raijin-crawl)** | katana | Unique endpoints and parameters, collapsed by route pattern (`/user/{id}`) |
-| **raijin-js** | katana + JS parsing | Endpoints, API routes and secrets found in JS bundles, deduped across files |
-| **raijin-params** | arjun / x8 | Hidden parameters that actually change the response |
+| **[raijin-js](https://github.com/protonnegativo/raijin-js)** | katana + JS parsing | Endpoints, API routes and secrets found in JS bundles, deduped across files |
+| **[raijin-params](https://github.com/protonnegativo/raijin-params)** | arjun (x8 planned) | Hidden parameters that actually change the response |
 | **raijin-scan** | nuclei | Unique findings with the matched evidence; collapses the same template across hosts |
-| **raijin-fuzz** | ffuf | Only responses that differ from the baseline (status, size, words, timing) |
-| **raijin-tls** | tlsx | Weak protocols/ciphers and certificate issues, grouped by issue |
-| **raijin-secrets** | trufflehog | Verified secrets first, with the minimal context line, never the full file |
-| **raijin-xss** | dalfox | Confirmed reflections with the payload and the context it landed in |
-| **raijin-cors** | native | Exploitable CORS only (credentials + reflected/null origin), with the proof request |
-| **raijin-takeover** | dnsx + fingerprints | Dangling records with the provider and the claim hint |
-| **raijin-diff** | native | What changed between two runs of any tool |
-| **raijin-mcp** | — | One MCP server that exposes every tool to any agent (Claude Code, Cursor, QuarkScan, ...) |
+| **[raijin-fuzz](https://github.com/protonnegativo/raijin-fuzz)** | ffuf | Only responses that differ from the baseline (status, size, words, timing) |
+| **[raijin-tls](https://github.com/protonnegativo/raijin-tls)** | tlsx | Weak protocols/ciphers and certificate issues, grouped by issue |
+| **[raijin-secrets](https://github.com/protonnegativo/raijin-secrets)** | trufflehog | Verified secrets first, with the minimal context line, never the full file |
+| **[raijin-xss](https://github.com/protonnegativo/raijin-xss)** | dalfox | Confirmed reflections with the payload and the context it landed in |
+| **[raijin-cors](https://github.com/protonnegativo/raijin-cors)** | native | Exploitable CORS only (credentials + reflected/null origin), with the proof request |
+| **[raijin-takeover](https://github.com/protonnegativo/raijin-takeover)** | dnsx + fingerprints | Dangling records with the provider and the claim hint |
+| **[raijin-diff](https://github.com/protonnegativo/raijin-diff)** | native | What changed between two runs of any tool |
+| **[raijin-mcp](https://github.com/protonnegativo/raijin-mcp)** | — | One MCP server that exposes every tool to any agent (Claude Code, Cursor, QuarkScan, ...) |
 
 Companion: **Fūjin**, the wind god who always travels with Raijin, is reserved for the passive / OSINT side (no packets to the target).
 
