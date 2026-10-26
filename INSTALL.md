@@ -70,7 +70,7 @@ Each tool runs a proven engine underneath and finds it on `PATH`. `./install.sh 
 | dnsx | raijin-takeover | as above |
 | (none) | raijin-cors, raijin-diff, raijin-mcp | native |
 
-`./install.sh --pinned` installs each engine at the version its tool was tested with, read from the tool's `engines.json`, instead of keeping whatever is on `PATH`. Use it when results must match the benchmarks exactly, for example during an engagement. Without it, the latest engine is used, which is what the weekly drift job (below) checks.
+`--engines` installs each missing engine at the version its tool was tested with, read from the tool's `engines.json` (needs python3); engines already on `PATH` are kept. `--pinned` also reinstalls those at the tested version, so results match the benchmarks exactly, for example during an engagement. `--force` installs the latest version instead, even untested; the weekly drift job (below) is what tests it.
 
 You only need the engines of the tools you use. A tool whose engine is missing still runs: it exits 2 and its JSON has an `errors` entry of kind `missing_engine` with the install command.
 
@@ -131,20 +131,20 @@ Every tool repo also runs two GitHub Actions workflows:
 - `ci`, on every push: vet, format, tests, and the offline benchmark. It fails if any engine result is missing from the output.
 - `engine-drift`, weekly (Monday 06:00 UTC) and on demand: installs the latest engine and runs the live benchmark against the local lab in the runner.
   - If something is missing or the format changed, it opens an issue labeled `engine-drift`.
-  - If everything passes on a newer engine, it commits the new version to `engines.json` and tags a release. `raijin-mcp update` then installs that release, and `--pinned` installs the newly tested engine version.
+  - If everything passes on a newer engine, it commits the new version to `engines.json` and tags a release. `raijin-mcp update` then installs that release and the newly tested engine version.
 
 ## Update and uninstall
 
-- **Update:** `raijin-mcp update` updates every installed `raijin-<verb>` to its latest release and its engines to their latest version. It never uses sudo: system packages (nmap) are printed, and trufflehog's install script runs only with `--allow-scripts`.
+- **Update:** `raijin-mcp update` updates every installed `raijin-<verb>` to its latest release and its engines to the version the tools were tested with (a newer one installed shows as `downgrade`; `--force` for the latest, even untested; `--pinned`, the old name of the default, still works). It never uses sudo: system packages (nmap) are printed, and trufflehog's install script runs only with `--allow-scripts`.
 
   ```bash
   raijin-mcp update --check    # what is out of date; installs nothing
-  raijin-mcp update            # update every tool and its engines
-  raijin-mcp update --pinned   # engines at the versions each tool was tested with
+  raijin-mcp update            # every tool, and its engines at the tested versions
+  raijin-mcp update --force    # engines at their latest version, even untested
   raijin-mcp update --tools scan,probe
   ```
 
-  An engine with a known-bad range has `"below": "X"` in the tool's `engines.json` (dnsx: `"below": "1.3.0"`): the update installs the highest release lower than X (the strictest bound when tools disagree), and an installed version at or above it shows as `downgrade`, with the tool that set the bound.
+  An engine with a known-bad range has `"below": "X"` in the tool's `engines.json` (dnsx: `"below": "1.3.0"`): `--force` installs the highest release lower than X (the strictest bound when tools disagree), and an installed version at or above it shows as `downgrade`, with the tool that set the bound.
 
   An agent can do the same through the MCP tool `raijin_update` (`{"apply": true}` to install; it only checks by default), then restart raijin-mcp. The server also checks once a day in the background and says so in its instructions when something is out of date.
 - **Uninstall:**

@@ -74,6 +74,8 @@ git clone https://github.com/protonnegativo/raijin && cd raijin
 ./install.sh --all    # todas as ferramentas, os engines que faltam e o raijin-mcp registrado no Claude Code
 ```
 
+Depois, `raijin-mcp update` atualiza todas as ferramentas instaladas e os engines de uma vez, nas versões testadas (`--check` só mostra o que está desatualizado, `--force` leva os engines à última versão, mesmo sem teste).
+
 ## Uso responsável
 
 O Raijin é só para teste autorizado: seus próprios ativos, pentests com escopo por escrito e programas de bug bounty dentro das regras de cada um.
