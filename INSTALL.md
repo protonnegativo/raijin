@@ -144,6 +144,8 @@ Every tool repo also runs two GitHub Actions workflows:
   raijin-mcp update --tools scan,probe
   ```
 
+  An engine with a known-bad range has `"below": "X"` in the tool's `engines.json` (dnsx: `"below": "1.3.0"`): the update installs the highest release lower than X (the strictest bound when tools disagree), and an installed version at or above it shows as `downgrade`, with the tool that set the bound.
+
   An agent can do the same through the MCP tool `raijin_update` (`{"apply": true}` to install; it only checks by default), then restart raijin-mcp. The server also checks once a day in the background and says so in its instructions when something is out of date.
 - **Uninstall:**
 
