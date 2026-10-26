@@ -88,14 +88,16 @@ engines=$(for v in $tools; do echo ${engine_for[$v]:-}; done | tr ' ' '\n' | sor
 
 # Tested versions (unless --force): each tool ships engines.json with the engine versions its fixtures
 # were made with. Read it from the module Go just downloaded; the first tool that names an engine sets
-# its version.
+# its version. --force keeps the tested version only for engines with a "below" bound (known broken
+# from that version on, e.g. dnsx 1.3).
 declare -A pinned
-if [ $want_engines = 1 ] && [ $want_force = 0 ]; then
+if [ $want_engines = 1 ] && { [ $want_force = 0 ] || command -v python3 >/dev/null; }; then
   command -v python3 >/dev/null || fail "the tested engine versions need python3 to read engines.json (or use --force for the latest)"
   for v in $tools; do
     dir=$(go mod download -json "$OWNER/raijin-$v@latest" 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("Dir",""))')
     [ -f "$dir/engines.json" ] || continue
-    while IFS=' ' read -r e ver kind src; do
+    while IFS=' ' read -r e ver kind src below; do
+      [ $want_force = 1 ] && [ -z "$below" ] && continue
       if [ -n "${pinned[$e]:-}" ]; then
         read -r first _ <<<"${pinned[$e]}"
         [ "$first" = "$ver" ] || echo "note: raijin-$v was tested with $e $ver, an earlier tool with $first; installing $first" >&2
@@ -109,7 +111,7 @@ if [ $want_engines = 1 ] && [ $want_force = 0 ]; then
     done < <(python3 -c 'import json,sys
 for e,v in json.load(open(sys.argv[1])).items():
     kind=next((k for k in ("go","pip","system") if k in v),"")
-    print(e, v.get("version",""), kind, v.get(kind,""))' "$dir/engines.json")
+    print(e, v.get("version",""), kind, v.get(kind,""), v.get("below",""))' "$dir/engines.json")
   done
 fi
 
