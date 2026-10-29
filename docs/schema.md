@@ -1,4 +1,4 @@
-# Raijin Schema (v0, draft)
+# Raijin Schema (v1)
 
 Every Raijin tool returns one JSON object with this shape. An agent learns it once and can read any tool.
 
@@ -6,8 +6,9 @@ The JSON is compact (one line) by default; `--pretty` indents it. **Anything the
 
 ```json
 {
+  "schema_version": 1,
   "tool": "raijin-<verb>",
-  "version": "0.1.0",
+  "version": "v0.2.0",
   "target": "scope or input summary",
   "summary": "one sentence an agent can quote back",
   "findings": [],
@@ -24,8 +25,9 @@ The JSON is compact (one line) by default; `--pretty` indents it. **Anything the
 
 | Field | Type | Meaning |
 |---|---|---|
+| `schema_version` | integer | Version of this schema, always the first field. Readers must check it before parsing and refuse a value they do not know (a document without the field is version 0) |
 | `tool` | string | Which tool produced the result |
-| `version` | string | Tool version; the schema version is the major |
+| `version` | string | Tool version (the release tag, with its `v`) |
 | `target` | string | What was scanned, in one line |
 | `summary` | string | One sentence: counts and the most important fact |
 | `findings` | array | Ranked findings, at most `max_items` (see below) |
@@ -82,3 +84,16 @@ Info-level output, collapsed per rule: **every variant listed matched every loca
 4. The same `tool` and `id` in two runs means the same finding. `raijin-diff` relies on it.
 5. If `max_items` or `max_bytes` cut something, set `budget.truncated`, count it in `omitted` and point to `raw` in `next`. Cut the least important data first: info locations, info groups, extra locations of low-ranked findings, low-ranked findings.
 6. Exit code `0` if the run worked (even with findings), `1` on usage error, `2` if the engine is missing.
+
+## Errors and exit codes
+
+The exit code is one contract across every tool, so an agent can branch on it before reading anything:
+
+| Exit | Meaning | Stdout |
+|---|---|---|
+| `0` | The run finished. A partial failure (an engine died halfway) is still `0` and is listed in `errors[]`: always read that field | The result |
+| `2` | A structured error: nothing, or not everything, was run. Read `errors[].kind` and `errors[].hint` | The result, with `errors` |
+| `1` | Wrong usage (bad flag, missing argument) | Nothing; the message is on stderr |
+
+Common `errors[].kind` values: `scope` (one entry per invalid scope line, the hint starts with `line N:` and says what to write instead), `missing_engine`, `no_targets` (the scope names no single host to scan; the hint says where to get one), `schema_version` (an input from a newer schema, `raijin-diff`).
+

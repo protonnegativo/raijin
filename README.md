@@ -6,7 +6,7 @@
 
 Raijin is an arsenal of security tools built to be driven by AI agents. Each tool runs a proven engine underneath (nuclei, httpx, katana, ffuf, ...). Instead of dumping thousands of raw lines, it returns a **small, deduplicated, ranked JSON** that an LLM can read without drowning its context.
 
-> Status: early. First tool available: [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei, 37× to 168× fewer tokens on the same matches); the other 14 tools are built and private for now. See [ROADMAP.md](ROADMAP.md).
+> Status: early (v0.2). All 15 tools are available, each one a standalone binary. For example [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei) returns the same matches in 39× to 134× fewer tokens than `nuclei -jsonl` (offline replay of the repo's fixtures; see its `BENCHMARK.md`). See [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -36,7 +36,7 @@ The engines do the scanning. Raijin does the part agents are bad at: **compressi
 ## Principles
 
 1. **Token budget.** Every tool takes `max_items` (and `max_bytes`). It returns the top N, plus a summary of what was left out: `"+340 identical 404 responses omitted"`.
-2. **Same schema everywhere.** Every tool returns the [Raijin Schema](docs/schema.md): `summary`, `findings`, `groups`, `omitted`, `errors`, `next`. An agent learns it once.
+2. **Same schema everywhere.** Every tool returns the [Raijin Schema](docs/schema.md): `schema_version` (always the first field), `summary`, `findings`, `groups`, `omitted`, `errors`, `next`. An agent learns it once. The exit code is one contract too: `0` ok, `2` a structured error with JSON on stdout (read `errors[].kind` and `hint`), `1` wrong usage.
 3. **Group, don't repeat, don't drop.** 500 hosts with the same finding become one entry that lists every location once, instead of 500 copies of the same template, title and metadata. Nothing found is dropped silently.
 4. **Minimal evidence.** Each finding carries the exact snippet that proves it (the header, the matched line, the reflected parameter), never the whole response.
 5. **Confidence, not just severity.** Each finding says how sure it is and why (`verified`, `matched`, `heuristic`).
@@ -57,7 +57,7 @@ Every tool is named `raijin-<verb>`: the same prefix, the same schema and the sa
 | **[raijin-crawl](https://github.com/protonnegativo/raijin-crawl)** | katana | Unique endpoints and parameters, collapsed by route pattern (`/user/{id}`) |
 | **[raijin-js](https://github.com/protonnegativo/raijin-js)** | katana + JS parsing | Endpoints, API routes and secrets found in JS bundles, deduped across files |
 | **[raijin-params](https://github.com/protonnegativo/raijin-params)** | arjun (x8 planned) | Hidden parameters that actually change the response |
-| **raijin-scan** | nuclei | Unique findings with the matched evidence; collapses the same template across hosts |
+| **[raijin-scan](https://github.com/protonnegativo/raijin-scan)** | nuclei | Unique findings with the matched evidence; collapses the same template across hosts |
 | **[raijin-fuzz](https://github.com/protonnegativo/raijin-fuzz)** | ffuf | Only responses that differ from the baseline (status, size, words, timing) |
 | **[raijin-tls](https://github.com/protonnegativo/raijin-tls)** | tlsx | Weak protocols/ciphers and certificate issues, grouped by issue |
 | **[raijin-secrets](https://github.com/protonnegativo/raijin-secrets)** | trufflehog | Verified secrets first, with the minimal context line, never the full file |
@@ -77,6 +77,7 @@ $ raijin-scan --scope scope.txt --max-items 5 hosts.txt
 
 ```json
 {
+  "schema_version": 1,
   "tool": "raijin-scan",
   "summary": "312 hosts scanned, 9 unique findings (2 high), 1840 raw matches collapsed",
   "findings": [
@@ -111,6 +112,18 @@ Later, `raijin-mcp update` updates every installed tool at once, and its engines
 
 Go, one repo and one binary per tool (`raijin-<verb>`), all sharing the Raijin Schema and the same flags. Engines are external binaries found on `PATH`; a missing engine is reported with an install hint.
 
+Prebuilt binaries (Linux, macOS, Windows; amd64 and arm64) with SHA-256 checksums are on the Releases page of each tool, or install one with Go:
+
+```bash
+go install github.com/protonnegativo/raijin-scan/cmd/raijin-scan@latest
+```
+
+The shared scope, schema and state code lives in [raijin-core](https://github.com/protonnegativo/raijin-core) and is compiled into each binary, so installing one tool never needs the others.
+
 ## Responsible use
 
 Raijin is for authorized testing only: your own assets, pentests with written scope, and bug bounty programs within their rules. Every tool requires an explicit scope and refuses anything outside it.
+
+## Security and license
+
+Found a vulnerability in a Raijin tool? See [SECURITY.md](SECURITY.md). Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Raijin is released under the [MIT license](LICENSE).

@@ -6,7 +6,7 @@
 
 Raijin é um arsenal de ferramentas de segurança pensado para ser usado por agentes de IA. Cada ferramenta roda por baixo um motor já consagrado (nuclei, httpx, katana, ffuf...). Em vez de despejar milhares de linhas brutas, devolve um **JSON pequeno, sem duplicatas e ranqueado**, que um LLM consegue ler sem estourar o contexto.
 
-> Status: ideia e design. Ainda não há nada implementado. Veja o [ROADMAP.md](ROADMAP.md).
+> Status: inicial (v0.2). As 15 ferramentas estão disponíveis, cada uma um binário independente. Por exemplo, o [**raijin-scan**](https://github.com/protonnegativo/raijin-scan) (nuclei) devolve os mesmos achados com 39× a 134× menos tokens que o `nuclei -jsonl` (replay offline das fixtures do repo; veja o `BENCHMARK.md` dele). Veja o [ROADMAP.md](ROADMAP.md).
 
 ## O problema
 
@@ -74,8 +74,20 @@ git clone https://github.com/protonnegativo/raijin && cd raijin
 ./install.sh --all    # todas as ferramentas, os engines que faltam e o raijin-mcp registrado no Claude Code
 ```
 
+Binários prontos (Linux, macOS e Windows; amd64 e arm64) com checksums SHA-256 estão na página de Releases de cada ferramenta. Ou instale uma com Go:
+
+```bash
+go install github.com/protonnegativo/raijin-scan/cmd/raijin-scan@latest
+```
+
+O código compartilhado de scope, schema e state mora no [raijin-core](https://github.com/protonnegativo/raijin-core) e é compilado dentro de cada binário, então instalar uma ferramenta nunca exige as outras.
+
 Depois, `raijin-mcp update` atualiza todas as ferramentas instaladas e os engines de uma vez, nas versões testadas (`--check` só mostra o que está desatualizado, `--force` leva os engines à última versão, mesmo sem teste).
 
 ## Uso responsável
 
 O Raijin é só para teste autorizado: seus próprios ativos, pentests com escopo por escrito e programas de bug bounty dentro das regras de cada um.
+
+## Segurança e licença
+
+Achou uma vulnerabilidade em uma ferramenta Raijin? Veja o [SECURITY.md](SECURITY.md). Contribuições são bem-vindas: veja o [CONTRIBUTING.md](CONTRIBUTING.md). O Raijin é distribuído sob a [licença MIT](LICENSE).

@@ -22,16 +22,16 @@ go version
 
 ## Step 2: access to the repos
 
-The Raijin repos are private for now, so Go fetches them with your git credentials.
+The Raijin repos are public, so no credentials are needed. This step only checks that GitHub is reachable.
 
 ```bash
 git ls-remote https://github.com/protonnegativo/raijin-scan HEAD
 ```
 
 - **Pass:** prints a commit hash.
-- **Fail:** the account has no access, or git has no credentials. Ask the user to run `gh auth login` and then `gh auth setup-git` (interactive: in Claude Code the user types `! gh auth login`). The account must have been granted access to the repos.
+- **Fail:** no network, or a proxy blocks github.com. Report it to the user; do not try to work around it.
 
-`install.sh` sets `GOPRIVATE=github.com/protonnegativo/*` itself. To install by hand, export it first.
+`install.sh` sets `GOPRIVATE=github.com/protonnegativo/*` itself, so Go fetches the tools straight from git instead of through the module proxy (a new tag is seen at once). To install by hand, export it first.
 
 ## Step 3: the tools
 
